@@ -6,3 +6,7 @@ variables:
 
 - name: manifest
   value: manifest.json
+- name: publishEolAnnotations
+  value: true
+- name: generateEolAnnotationDataExtraOptions
+  value: "--annotate-eol-products"

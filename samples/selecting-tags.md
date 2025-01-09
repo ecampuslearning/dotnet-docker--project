@@ -6,85 +6,125 @@ You can use the referenced images and tags with the docker CLI, for example with
 
 ## .NET Docker repos
 
-There are multiple [.NET Docker repos](../README.md) that expose various layers of the .NET platform.
+There are multiple [.NET Docker repos](../README.md) that expose various layers
+of the .NET platform. They can be found under [Featured Repos](/README.md#featured-repos).
+Other repos, including preview (nightly) .NET images, can be found under
+[Related Repos](/README.md#related-repositories).
 
-* [dotnet/runtime-deps](../README.runtime-deps.md) -- Linux-only images that contains the native dependencies of .NET. Best used for self-contained applications.
-* [dotnet/runtime](../README.runtime.md) -- Images that contains the .NET runtime. Best used for console applications. On Linux, depends on the `runtime-deps` image.
-* [dotnet/aspnet](../README.aspnet.md) -- Images that contains the ASP.NET Core runtime. Best used for web applications and services. Depends on the `runtime` image.
-* [dotnet/sdk](../README.sdk.md) -- An image that contains the .NET SDK (which includes tools and all runtimes). Best used for building and testing applications. Depends on [buildpack-deps](https://hub.docker.com/_/buildpack-deps) for Debian and Ubuntu, on [dotnet/aspnet](../README.aspnet.md) for Alpine and on [windows/nanoserver](https://mcr.microsoft.com/en-us/product/windows/nanoserver/about) for Windows.
+## Default Linux tags
 
-The repos above are commonly used on the command line and in Dockerfiles. There are two more repos that may be useful to you:
+The `runtime-deps`, `runtime`, `aspnet`, and `sdk` repos provide version-only
+manifest list tags. These tags can sometimes be referred to as "convenience
+tags".
 
-* [dotnet/nightly](https://github.com/dotnet/dotnet-docker/blob/nightly/README.md) -- A duplicate structure of repos which contain the latest pre-released versions of .NET. (which are not supported in production).
-* [dotnet/samples](../README.samples.md) -- A set of samples that demonstrate .NET being used in console and web scenarios.
+* `9.0`
+* `9.0.X`
+* `latest`
 
-## Tags that work everywhere
+For .NET 8 and .NET 9, these tags refer to Debian 12 (Bookworm). All three
+of the above tags will provide a Debian image.
 
-Each repo exposes a set of tags you can use. There are a set of version number tags, like `6.0`, that you can use on multiple operating systems and are supported on most processor types (x64, ARM64 and ARM32). If you don't see an operating system or processor type in the tag, you know it's a [multi-platform](https://www.docker.com/blog/docker-official-images-now-multi-platform/) tag that will work everywhere.
+> [!CAUTION]
+> For .NET 10 and subsequent releases, [these tags will refer to Ubuntu 24.04
+> ("Noble")](https://github.com/dotnet/dotnet-docker/discussions/5709).
 
-When you pull these tags, you will get a Debian image for Linux and Windows Nano Server images on Windows (if you are using Windows containers). If you are happy with that behavior, then these are the easiest tags to use and enable you to write Dockerfiles that can be built on multiple machines. However, the images you produce may differ across environments (which may or may not be what you want).
-
-For example, the following command will work in all supported environments:
-
-```console
-docker run --rm mcr.microsoft.com/dotnet/runtime:6.0 dotnet
-```
-
-Similarly, you can build an image with the following `FROM` statement:
-
-```Dockerfile
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
-```
-
-This will work on all operating systems and on all supported chips, but building this Dockerfile on Windows x64 will produce a different image than on Linux ARM64 and they are not interchangeable.
+These convenience tags don't support Windows. See the [Multi-Platform
+Tags](/documentation/supported-tags.md#multi-platform-tags) documentation for
+more info.
 
 ## Targeting a specific operating system
 
-If you want a specific operating system image, you should use a specific operating system tag. We publish images for [Alpine](#alpine), [Debian](#debian), [Ubuntu](#ubuntu), [Windows Nano Server](#nano-server), and [Windows Server Core](#windows-server-core).
+If you want a specific operating system image, you should use a specific operating system tag. We publish images for [Alpine](#alpine-linux), [Azure Linux](#azure-linux), [Debian](#debian), [Ubuntu](#ubuntu), [Windows Nano Server](#nano-server), and [Windows Server Core](#windows-server-core).
 
-The following tags demonstrate the pattern used to describe each operating system (using .NET 6.0 as the example):
+The following tags demonstrate the pattern used to describe each operating system (using .NET 9.0 as the example):
 
-* `6.0-alpine` (Latest Alpine)
-* `6.0-focal` (Ubuntu 20.04)
-* `6.0-bullseye-slim` (Debian 11)
-* `6.0-nanoserver-ltsc2022` (Nano Server LTSC 2022)
-* `6.0-nanoserver-1809` (Nano Server, version 1809)
-* `6.0-windowsservercore-ltsc2022` (Windows Server Core LTSC 2022)
-* `6.0-windowsservercore-ltsc2019` (Windows Server Core LTSC 2019)
+* `9.0-alpine` (Latest Alpine)
+* `9.0-azurelinux3.0` (Azure Linux 3.0)
+* `9.0-bookworm-slim` (Debian 12)
+* `9.0-noble` (Ubuntu 24.04)
+* `9.0-nanoserver-ltsc2022` (Nano Server LTSC 2022)
+* `9.0-nanoserver-1809` (Nano Server, version 1809)
+* `9.0-windowsservercore-ltsc2022` (Windows Server Core LTSC 2022)
+* `9.0-windowsservercore-ltsc2019` (Windows Server Core LTSC 2019)
 
-For example, the following command will pull an x64 Alpine image:
+For example, the following command will pull an Alpine image for your machine's architecture:
 
 ```console
-docker pull mcr.microsoft.com/dotnet/runtime:6.0-alpine
+docker pull mcr.microsoft.com/dotnet/runtime:9.0-alpine
 ```
 
 ### Linux
 
-#### [Debian](https://www.debian.org)
+#### [Alpine Linux](https://alpinelinux.org/)
 
-* When targeting Linux containers, Debian is the default Linux distro for all tags that do not specify an OS. For example, `latest`, `6.0`, and `6.0.0` will all provide a Debian image.
-* Very stable.
+|                 |                                                                    |
+|-----------------|--------------------------------------------------------------------|
+| Releases        | [Every 6 months](https://alpinelinux.org/releases/)                |
+| Security        | [Alpine Linux Security Tracker](https://security.alpinelinux.org/) |
+| Support         | [Alpine Linux Community](https://alpinelinux.org/community/)       |
+| Package format  | `.apk`                                                             |
+| Package manager | `apk`                                                              |
 
-#### [Ubuntu](https://ubuntu.com)
+| Supported .NET Features |                            |
+|-------------------------|----------------------------|
+| [Globalization]         | Invariant mode by default.<br>Globalization supported with `-extra` image variant. |
+| [Distroless Images]     | Yes                        |
 
-* Shares Debian's codebase.
-* Feature-rich.
-* Less stable compared to Debian.
+#### [Azure Linux](https://github.com/microsoft/azurelinux)
 
-#### [Alpine](https://www.alpinelinux.org)
+|                 |                                                                                            |
+|-----------------|--------------------------------------------------------------------------------------------|
+| Releases        | Approximately every 2 years                                                                |
+| Security        | [Azure Linux Vulnerability Data](https://github.com/microsoft/AzureLinuxVulnerabilityData) |
+| Support         | [Azure Linux GitHub repo](https://github.com/microsoft/azurelinux/issues)                  |
+| Package format  | `.rpm`                                                                                     |
+| Package manager | `tdnf`                                                                                     |
 
-* Security-oriented and lightweight.
-* Uses [musl instead of glibc](https://wiki.musl-libc.org/functional-differences-from-glibc.html) which may have incompatibility with your software.
+| Supported .NET Features |                                 |
+|-------------------------|---------------------------------|
+| [Globalization]         | Yes, for non-distroless images.<br>Globalization supported in distroless images with `-extra` image variant. |
+| [Distroless Images]     | No                              |
 
-<a name="alpine-globalization">Globalization Support</a>:
+#### [Debian](https://www.debian.org/)
 
-By default, the `icu-libs` package is not included and the [globalization invariant mode](https://github.com/dotnet/runtime/blob/main/docs/design/features/globalization-invariant-mode.md) is enabled. You can opt into globalization support by [following the pattern shown in the sample Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.alpine-icu).
+* Stability-focused, extensive package repository.
+* Full featured .NET images including many packages.
+
+|                 |                                                                 |
+|-----------------|-----------------------------------------------------------------|
+| Releases        | [Approximately every 2 years](https://www.debian.org/releases/) |
+| Security        | [Debian Security Information](https://www.debian.org/security/) |
+| Support         | [Debian User Support](https://www.debian.org/support)           |
+| Package format  | `.deb`                                                          |
+| Package manager | `apt`/ `dpkg`                                                   |
+
+| Supported .NET Features |     |
+|-------------------------|-----|
+| [Globalization]         | Yes |
+| [Distroless Images]     | No  |
+
+#### [Ubuntu](https://ubuntu.com/)
+
+|                 |                                                                      |
+|-----------------|----------------------------------------------------------------------|
+| Releases        | [LTS releases every 2 years](https://ubuntu.com/about/release-cycle) |
+| Security        | [Ubuntu Security Information](https://ubuntu.com/security/cves)      |
+| Support         | [Ubuntu support](https://ubuntu.com/support)<br> [Launchpad](https://bugs.launchpad.net/ubuntu)<br> [Discourse](https://discourse.ubuntu.com/) |
+| Package format  | `.deb`                                                               |
+| Package manager | `apt`/ `dpkg`                                                        |
+
+| Supported .NET Features |                                                            |
+|-------------------------|------------------------------------------------------------|
+| [Globalization]           | Yes, for non-Chiseled images.<br>Globalization supported in Chiseled images with `-extra` image variant. |
+| [Distroless Images]     | Yes - [Ubuntu Chiseled](/documentation/ubuntu-chiseled.md) |
+
+[Globalization]: ./enable-globalization.md
+[Distroless Images]: /documentation/distroless.md
 
 ### Windows
 
 #### [Nano Server](https://docs.microsoft.com/virtualization/windowscontainers/manage-containers/container-base-images)
 
-* When targeting Windows containers, Nano Server is the default OS for all tags that do not specify an OS. For example, `latest`, `6.0`, and `6.0.0` will all provide a Nano Server image.
 * Small, minimalistic version of Windows.
 * Good option for new application development.
 
@@ -105,31 +145,31 @@ The following tags demonstrate the pattern used to describe each processor, usin
 
 ### x64
 
-* `6.0-alpine-amd64`
-* `6.0-focal-amd64`
-* `6.0-bullseye-slim-amd64`
-* `6.0-nanoserver-1809`
-* `6.0-windowsservercore-ltsc2019`
+* `9.0-alpine-amd64`
+* `9.0-noble-amd64`
+* `9.0-bookworm-slim-amd64`
+* `9.0-nanoserver-ltsc2022`
+* `9.0-windowsservercore-ltsc2022`
 
 ### ARM64
 
-* `6.0-alpine-arm64v8`
-* `6.0-focal-arm64v8`
-* `6.0-bullseye-slim-arm64v8`
+* `9.0-alpine-arm64v8`
+* `9.0-noble-arm64v8`
+* `9.0-bookworm-slim-arm64v8`
 
 ### ARM32
 
-* `6.0-alpine-arm32v7`
-* `6.0-focal-arm32v7`
-* `6.0-bullseye-slim-arm32v7`
+* `9.0-alpine-arm32v7`
+* `9.0-noble-arm32v7`
+* `9.0-bookworm-slim-arm32v7`
 
 ## Matching SDK and Runtime images
 
-As already stated, we offer images for Alpine, Debian and Ubuntu, for Linux. People (and organizations) choose each of these distros for different reasons. Many people likely choose Debian, for example, because it is the default distro (for example, the `6.0` tag in each of the .NET Docker repos will pull a Debian image).
+As already stated, we offer images for Alpine, Debian and Ubuntu, for Linux. People (and organizations) choose each of these distros for different reasons. Many people likely choose Debian, for example, because it is the default distro (for example, the `9.0` tag in each of the .NET Docker repos will pull a Debian image).
 
-For multi-stage Dockerfiles, there are typically at least two tags referenced, an SDK and a runtime tag. You may want to make a conscious choice to make the distros match for those two tags. If you are only targeting Debian, this is easy, because you can just use the simple multi-platform tags we expose (like `6.0`), and you'll always get Debian (when building for Linux containers). If you are targeting Alpine or Ubuntu for your final runtime image (`aspnet` or `runtime`), then you have a choice, as follows:
+For multi-stage Dockerfiles, there are typically at least two tags referenced, an SDK and a runtime tag. You may want to make a conscious choice to make the distros match for those two tags. If you are only targeting Debian, this is easy, because you can just use the simple multi-platform tags we expose (like `9.0`), and you'll always get Debian (when building for Linux containers). If you are targeting Alpine or Ubuntu for your final runtime image (`aspnet` or `runtime`), then you have a choice, as follows:
 
-* Target a multi-platform tag for the SDK (like `6.0`) to make the SDK stage simple and to enable your Dockerfile to be built in multiple environments (with different processor architectures). This is what most of the samples Dockerfiles in this repo do.
+* Target a multi-platform tag for the SDK (like `9.0`) to make the SDK stage simple and to enable your Dockerfile to be built in multiple environments (with different processor architectures). This is what most of the samples Dockerfiles in this repo do.
 * Match SDK and runtime tags to ensure that you are using the same OS (with the associated shell and commands) and package manager for all stages within a Dockerfile.
 
 ## Building for your production environment

@@ -45,28 +45,34 @@ When making PRs, all source code changes (e.g. Dockerfiles, tests, and infrastru
 
 The [`build-and-test.ps1`](https://github.com/dotnet/dotnet-docker/blob/main/build-and-test.ps1) script will build and test the .NET Docker images. Given the matrix of supported .NET versions, distros, and architectures there are numerous Dockerfiles and building can take a while. To make this manageable, the script supports several options for filtering down what images get built and tested.
 
-- Build and test all of the .NET 8.0 images for the Docker platform your machine is targeting (e.g. linux/x64, linux/arm, linux/arm64, windows/x64).
+- Build and test all of the .NET 9.0 images for the Docker platform your machine is targeting (e.g. linux/x64, linux/arm, linux/arm64, windows/x64).
 
     ``` console
-    > ./build-and-test.ps1 -Version 8.0
+    > ./build-and-test.ps1 -Version 9.0
     ```
 
-- Build the 8.0 Nano Server 1809 images
+- Build the 9.0 Ubuntu Noble images using version and OS arguments. Note that this *will not* build `noble-chiseled` images as those are labeled by a different `OS` in [manifest.json](/manifest.json).
 
     ``` console
-    > ./build-and-test.ps1 -Version 8.0 -OS nanoserver-1809 -Mode Build
+    > ./build-and-test.ps1 -Version 9.0 -OS noble -Mode Build
+    ```
+
+- Build the 9.0 Ubuntu Noble images using Dockerfile paths. This *will* will build `noble-chiseled` images as those Dockerfiles will match the `noble` part of the `Paths` argument.
+
+    ``` console
+    > ./build-and-test.ps1 -Paths '*9.0*noble*' -Mode Build
     ```
 
 - Build and test the samples
 
     ``` console
-    > ./build-and-test.ps1 -Path *samples* -TestCategories sample
+    > ./build-and-test.ps1 -Paths '*samples*' -TestCategories sample
     ```
 
-- Test the 8.0 Ubuntu Jammy images for the current architecture (e.g. x64, arm, arm64).
+- Test the 9.0 Nano Server 1809 images (remember to switch to Windows container mode in Docker Desktop)
 
     ``` console
-    > ./build-and-test.ps1 -Version 8.0 -OS jammy -Mode Test
+    > ./build-and-test.ps1 -Version 9.0 -OS nanoserver-1809 -Mode Test
     ```
 
 #### Editing Dockerfiles
@@ -109,20 +115,31 @@ Updating the product versions (e.g. .NET runtime, ASP.NET runtime, PowerShell, e
 
 The following examples illustrate how to run `update-dependencies`:
 
-- Update the 8.0 product versions (uses a helper script for running update-dependencies)
+- Update the 9.0 product versions (uses a helper script for running update-dependencies)
 
     ``` console
-    > ./eng/Set-DotnetVersions.ps1 -ProductVersion 8.0 -SdkVersion 8.0.100 -RuntimeVersion 8.0.0 -AspnetVersion 8.0.0
+    > ./eng/Set-DotnetVersions.ps1 -ProductVersion 9.0 -SdkVersion 9.0.100 -RuntimeVersion 9.0.0 -AspnetVersion 9.0.0
     ```
 
 - Update the .NET Monitor version (uses a helper script for running update-dependencies)
 
     ``` console
-    > ./eng/Set-DotnetVersions.ps1 -ProductVersion 6.3 -MonitorVersion 6.3.1
+    > ./eng/Set-DotnetVersions.ps1 -ProductVersion 8.0 -MonitorVersion 8.0.5
     ```
 
-- Update the PowerShell version used in the 8.0 images
+- Update the PowerShell version used in the 9.0 images
 
     ``` console
-    > dotnet run --project .\eng\update-dependencies\ -- 8.0 --product-version powershell=7.2.7 --compute-shas
+    > dotnet run --project .\eng\update-dependencies\ -- 9.0 --product-version powershell=7.5.0 --compute-shas
     ```
+
+#### Checking Markdown links locally
+
+This repo uses [UmbrellaDocs/linkspector](https://github.com/UmbrellaDocs/linkspector)
+to automatically validate links in markdown files. You can run this tool
+locally using Docker.
+
+1. Build linkspector Docker image:
+   `docker build --no-cache --pull --build-arg LINKSPECTOR_PACKAGE= -t umbrelladocs/linkspector https://github.com/UmbrellaDocs/linkspector.git`
+2. Run linkspector:
+   `docker run --rm -it -v ${PWD}:/app umbrelladocs/linkspector bash -c 'linkspector check -c /app/.github/linters/.linkspector.yml'`

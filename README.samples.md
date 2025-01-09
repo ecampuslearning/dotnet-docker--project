@@ -15,13 +15,6 @@ These images contain sample .NET and ASP.NET Core applications.
 
 Watch [discussions](https://github.com/dotnet/dotnet-docker/discussions/categories/announcements) for Docker-related .NET announcements.
 
-### New: Ubuntu Chiseled Images
-
-Ubuntu Chiseled .NET images are a type of "distroless" container image that contain only the minimal set of packages .NET needs, with everything else removed.
-These images offer dramatically smaller deployment sizes and attack surface by including only the minimal set of packages required to run .NET applications.
-
-Please see the [Ubuntu Chiseled + .NET](https://github.com/dotnet/dotnet-docker/blob/main/documentation/ubuntu-chiseled.md) documentation page for more info.
-
 ## Usage
 
 The [.NET Docker samples](https://github.com/dotnet/dotnet-docker/blob/main/samples/README.md) show various ways to use .NET and Docker together. See [Building Docker Images for .NET Applications](https://docs.microsoft.com/dotnet/core/docker/building-net-docker-images) to learn more.
@@ -57,6 +50,19 @@ See [Hosting ASP.NET Core Images with Docker over HTTPS](https://github.com/dotn
 .NET container images have several variants that offer different combinations of flexibility and deployment size.
 The [Image Variants documentation](https://github.com/dotnet/dotnet-docker/blob/main/documentation/image-variants.md) contains a summary of the image variants and their use-cases.
 
+### Distroless images
+
+.NET [distroless container images](https://github.com/dotnet/dotnet-docker/blob/main/documentation/distroless.md) contain only the minimal set of packages .NET needs, with everything else removed.
+Due to their limited set of packages, distroless containers have a minimized security attack surface, smaller deployment sizes, and faster start-up time compared to their non-distroless counterparts.
+They contain the following features:
+
+* Minimal set of packages required for .NET applications
+* Non-root user by default
+* No package manager
+* No shell
+
+.NET offers distroless images for [Azure Linux](https://github.com/dotnet/dotnet-docker/blob/main/documentation/azurelinux.md) and [Ubuntu (Chiseled)](https://github.com/dotnet/dotnet-docker/blob/main/documentation/ubuntu-chiseled.md).
+
 ## Related Repositories
 
 .NET:
@@ -80,58 +86,58 @@ The [Image Variants documentation](https://github.com/dotnet/dotnet-docker/blob/
 
 Tags | Dockerfile | OS Version
 -----------| -------------| -------------
-dotnetapp-9.0-alpine-amd64, dotnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.alpine) | Alpine
-dotnetapp-chiseled-9.0-amd64, dotnetapp-chiseled-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.chiseled) | Ubuntu
-aspnetapp-9.0-alpine-amd64, aspnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.alpine) | Alpine
-aspnetapp-chiseled-9.0-amd64, aspnetapp-chiseled-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.chiseled) | Ubuntu
-dotnetapp-8.0-alpine-amd64, dotnetapp-alpine-amd64, dotnetapp-8.0, dotnetapp, latest | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.alpine) | Alpine
-dotnetapp-chiseled-8.0-amd64, dotnetapp-chiseled-amd64, dotnetapp-chiseled-8.0, dotnetapp-chiseled | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.chiseled) | Ubuntu
-aspnetapp-8.0-alpine-amd64, aspnetapp-alpine-amd64, aspnetapp-8.0, aspnetapp | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.alpine) | Alpine
-aspnetapp-chiseled-8.0-amd64, aspnetapp-chiseled-amd64, aspnetapp-chiseled-8.0, aspnetapp-chiseled | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.chiseled) | Ubuntu
-
-### Linux arm32 Tags
-
-Tags | Dockerfile | OS Version
------------| -------------| -------------
-dotnetapp-9.0-alpine-arm32v7, dotnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.alpine) | Alpine
-dotnetapp-chiseled-9.0-arm32v7, dotnetapp-chiseled-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.chiseled) | Ubuntu
-aspnetapp-9.0-alpine-arm32v7, aspnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.alpine) | Alpine
-aspnetapp-chiseled-9.0-arm32v7, aspnetapp-chiseled-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.chiseled) | Ubuntu
-dotnetapp-8.0-alpine-arm32v7, dotnetapp-alpine-arm32v7, dotnetapp-8.0, dotnetapp, latest | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.alpine) | Alpine
-dotnetapp-chiseled-8.0-arm32v7, dotnetapp-chiseled-arm32v7, dotnetapp-chiseled-8.0, dotnetapp-chiseled | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.chiseled) | Ubuntu
-aspnetapp-8.0-alpine-arm32v7, aspnetapp-alpine-arm32v7, aspnetapp-8.0, aspnetapp | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.alpine) | Alpine
-aspnetapp-chiseled-8.0-arm32v7, aspnetapp-chiseled-arm32v7, aspnetapp-chiseled-8.0, aspnetapp-chiseled | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.chiseled) | Ubuntu
+dotnetapp-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.alpine) | Alpine
+dotnetapp-chiseled-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.chiseled) | Ubuntu
+aspnetapp-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.alpine) | Alpine
+aspnetapp-chiseled-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.chiseled) | Ubuntu
+dotnetapp-8.0, dotnetapp, latest | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.alpine) | Alpine
+dotnetapp-chiseled-8.0, dotnetapp-chiseled | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.chiseled) | Ubuntu
+aspnetapp-8.0, aspnetapp | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.alpine) | Alpine
+aspnetapp-chiseled-8.0, aspnetapp-chiseled | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.chiseled) | Ubuntu
 
 ### Linux arm64 Tags
 
 Tags | Dockerfile | OS Version
 -----------| -------------| -------------
-dotnetapp-9.0-alpine-arm64v8, dotnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.alpine) | Alpine
-dotnetapp-chiseled-9.0-arm64v8, dotnetapp-chiseled-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.chiseled) | Ubuntu
-aspnetapp-9.0-alpine-arm64v8, aspnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.alpine) | Alpine
-aspnetapp-chiseled-9.0-arm64v8, aspnetapp-chiseled-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.chiseled) | Ubuntu
-dotnetapp-8.0-alpine-arm64v8, dotnetapp-alpine-arm64v8, dotnetapp-8.0, dotnetapp, latest | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.alpine) | Alpine
-dotnetapp-chiseled-8.0-arm64v8, dotnetapp-chiseled-arm64v8, dotnetapp-chiseled-8.0, dotnetapp-chiseled | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.chiseled) | Ubuntu
-aspnetapp-8.0-alpine-arm64v8, aspnetapp-alpine-arm64v8, aspnetapp-8.0, aspnetapp | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.alpine) | Alpine
-aspnetapp-chiseled-8.0-arm64v8, aspnetapp-chiseled-arm64v8, aspnetapp-chiseled-8.0, aspnetapp-chiseled | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.chiseled) | Ubuntu
+dotnetapp-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.alpine) | Alpine
+dotnetapp-chiseled-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.chiseled) | Ubuntu
+aspnetapp-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.alpine) | Alpine
+aspnetapp-chiseled-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.chiseled) | Ubuntu
+dotnetapp-8.0, dotnetapp, latest | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.alpine) | Alpine
+dotnetapp-chiseled-8.0, dotnetapp-chiseled | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.chiseled) | Ubuntu
+aspnetapp-8.0, aspnetapp | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.alpine) | Alpine
+aspnetapp-chiseled-8.0, aspnetapp-chiseled | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.chiseled) | Ubuntu
+
+### Linux arm32 Tags
+
+Tags | Dockerfile | OS Version
+-----------| -------------| -------------
+dotnetapp-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.alpine) | Alpine
+dotnetapp-chiseled-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.chiseled) | Ubuntu
+aspnetapp-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.alpine) | Alpine
+aspnetapp-chiseled-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.chiseled) | Ubuntu
+dotnetapp-8.0, dotnetapp, latest | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.alpine) | Alpine
+dotnetapp-chiseled-8.0, dotnetapp-chiseled | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.chiseled) | Ubuntu
+aspnetapp-8.0, aspnetapp | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.alpine) | Alpine
+aspnetapp-chiseled-8.0, aspnetapp-chiseled | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.chiseled) | Ubuntu
 
 ### Nano Server 2022 amd64 Tags
 
 Tag | Dockerfile
 ---------| ---------------
-dotnetapp-9.0-nanoserver-ltsc2022, dotnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.nanoserver)
-aspnetapp-9.0-nanoserver-ltsc2022, aspnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.nanoserver)
-dotnetapp-8.0-nanoserver-ltsc2022, dotnetapp-nanoserver-ltsc2022, dotnetapp-8.0, dotnetapp, latest | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.nanoserver)
-aspnetapp-8.0-nanoserver-ltsc2022, aspnetapp-nanoserver-ltsc2022, aspnetapp-8.0, aspnetapp | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.nanoserver)
+dotnetapp-9.0-nanoserver-ltsc2022, dotnetapp-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.nanoserver)
+aspnetapp-9.0-nanoserver-ltsc2022, aspnetapp-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.nanoserver)
+dotnetapp-8.0-nanoserver-ltsc2022, dotnetapp-nanoserver-ltsc2022, dotnetapp-8.0, dotnetapp, latest | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.nanoserver)
+aspnetapp-8.0-nanoserver-ltsc2022, aspnetapp-nanoserver-ltsc2022, aspnetapp-8.0, aspnetapp | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.nanoserver)
 
 ### Nano Server, version 1809 amd64 Tags
 
 Tag | Dockerfile
 ---------| ---------------
-dotnetapp-9.0-nanoserver-1809, dotnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.nanoserver)
-aspnetapp-9.0-nanoserver-1809, aspnetapp-9.0 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/aspnetapp/Dockerfile.nanoserver)
-dotnetapp-8.0-nanoserver-1809, dotnetapp-nanoserver-1809, dotnetapp-8.0, dotnetapp, latest | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/dotnetapp/Dockerfile.nanoserver)
-aspnetapp-8.0-nanoserver-1809, aspnetapp-nanoserver-1809, aspnetapp-8.0, aspnetapp | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/samples/8.0/aspnetapp/Dockerfile.nanoserver)
+dotnetapp-9.0-nanoserver-1809, dotnetapp-9.0 | [Dockerfile](samples/dotnetapp/Dockerfile.nanoserver)
+aspnetapp-9.0-nanoserver-1809, aspnetapp-9.0 | [Dockerfile](samples/aspnetapp/Dockerfile.nanoserver)
+dotnetapp-8.0-nanoserver-1809, dotnetapp-nanoserver-1809, dotnetapp-8.0, dotnetapp, latest | [Dockerfile](samples/8.0/dotnetapp/Dockerfile.nanoserver)
+aspnetapp-8.0-nanoserver-1809, aspnetapp-nanoserver-1809, aspnetapp-8.0, aspnetapp | [Dockerfile](samples/8.0/aspnetapp/Dockerfile.nanoserver)
 <!--End of generated tags-->
 
 *Tags not listed in the table above are not supported. See the [Supported Tags Policy](https://github.com/dotnet/dotnet-docker/blob/main/documentation/supported-tags.md). See the [full list of tags](https://mcr.microsoft.com/v2/dotnet/samples/tags/list) for all supported and unsupported tags.*

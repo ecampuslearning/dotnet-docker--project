@@ -2,8 +2,8 @@
 
 ## Featured Tags
 
-* `8.2`
-  * `docker pull mcr.microsoft.com/dotnet/aspire-dashboard:8.2`
+* `9.0`
+  * `docker pull mcr.microsoft.com/dotnet/aspire-dashboard:9.0`
 
 ## About
 
@@ -99,8 +99,8 @@ Limits are per-resource. For example, a `MaxLogCount` value of 10,000 configures
 * [dotnet/runtime](https://github.com/dotnet/dotnet-docker/blob/main/README.runtime.md): .NET Runtime
 * [dotnet/runtime-deps](https://github.com/dotnet/dotnet-docker/blob/main/README.runtime-deps.md): .NET Runtime Dependencies
 * [dotnet/monitor](https://github.com/dotnet/dotnet-docker/blob/main/README.monitor.md): .NET Monitor Tool
-* [dotnet/samples](https://github.com/dotnet/dotnet-docker/blob/main/README.samples.md): .NET Samples
 * [dotnet/nightly/aspire-dashboard](https://github.com/dotnet/dotnet-docker/blob/nightly/README.aspire-dashboard.md): .NET Aspire Dashboard (Preview)
+* [dotnet/samples](https://github.com/dotnet/dotnet-docker/blob/main/README.samples.md): .NET Samples
 
 .NET Framework:
 
@@ -113,13 +113,13 @@ Limits are per-resource. For example, a `MaxLogCount` value of 10,000 configures
 
 Tags | Dockerfile | OS Version
 -----------| -------------| -------------
-8.2.1, 8.2, 8, latest | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/src/aspire-dashboard/8.2/cbl-mariner-distroless/amd64/Dockerfile) | CBL-Mariner 2.0
+9.0.0, 9.0, 9, latest | [Dockerfile](src/aspire-dashboard/9.0/cbl-mariner-distroless/amd64/Dockerfile) | CBL-Mariner 2.0
 
 ### Linux arm64 Tags
 
 Tags | Dockerfile | OS Version
 -----------| -------------| -------------
-8.2.1, 8.2, 8, latest | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/main/src/aspire-dashboard/8.2/cbl-mariner-distroless/arm64v8/Dockerfile) | CBL-Mariner 2.0
+9.0.0, 9.0, 9, latest | [Dockerfile](src/aspire-dashboard/9.0/cbl-mariner-distroless/arm64v8/Dockerfile) | CBL-Mariner 2.0
 <!--End of generated tags-->
 
 *Tags not listed in the table above are not supported. See the [Supported Tags Policy](https://github.com/dotnet/dotnet-docker/blob/main/documentation/supported-tags.md). See the [full list of tags](https://mcr.microsoft.com/v2/dotnet/aspire-dashboard/tags/list) for all supported and unsupported tags.*
