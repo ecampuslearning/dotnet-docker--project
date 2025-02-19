@@ -8,7 +8,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Xunit;
+
+using static Microsoft.DotNet.Docker.Tests.ManifestHelper;
 
 #nullable enable
 
@@ -24,7 +27,6 @@ namespace Microsoft.DotNet.Docker.Tests
             MajorMinorPatch = 3
         }
 
-        private const string AlpineOs = "alpine";
         private const string LatestTagValue = "latest";
         private const string SingleNumberRegex = @"\d+";
         private const string MajorVersionRegex = SingleNumberRegex;
@@ -111,7 +113,7 @@ namespace Microsoft.DotNet.Docker.Tests
             VersionType versionType,
             bool checkOs,
             bool checkArchitecture,
-            Func<ManifestHelper.DockerfileInfo, bool> skipDockerFileOn)
+            Func<DockerfileInfo, bool> skipDockerFileOn)
         {
 
             if (!checkOs && !checkArchitecture)
@@ -120,10 +122,10 @@ namespace Microsoft.DotNet.Docker.Tests
                     "Please use the VersionTag tests for this scenario.");
             }
 
-            Dictionary<ManifestHelper.DockerfileInfo, List<string>> dockerfileTags = ManifestHelper.GetDockerfileTags(repo);
-            foreach (KeyValuePair<ManifestHelper.DockerfileInfo, List<string>> dockerfileTag in dockerfileTags)
+            Dictionary<DockerfileInfo, List<string>> dockerfileTags = ManifestHelper.GetDockerfileTags(repo);
+            foreach (KeyValuePair<DockerfileInfo, List<string>> dockerfileTag in dockerfileTags)
             {
-                ManifestHelper.DockerfileInfo dockerfileInfo = dockerfileTag.Key;
+                DockerfileInfo dockerfileInfo = dockerfileTag.Key;
                 if (skipDockerFileOn(dockerfileInfo))
                 {
                     continue;
@@ -161,49 +163,38 @@ namespace Microsoft.DotNet.Docker.Tests
         [MemberData(nameof(GetTagTestObjects), TestType.FloatingAlpine)]
         public void FloatingAlpineTag_OnLatestVersion(Repo repo, VersionType versionType, bool checkArchitecture)
         {
-            Dictionary<ManifestHelper.DockerfileInfo, List<string>> dockerfileTags = ManifestHelper.GetDockerfileTags(repo);
+            IEnumerable<KeyValuePair<DockerfileInfo, List<string>>> alpineDockerfileTags =
+                GetDockerfileTags(repo)
+                    .Where(p => p.Key.Os.Contains(OS.Alpine));
 
-            IEnumerable<ManifestHelper.DockerfileInfo> alpineDockerfiles = dockerfileTags.Keys
-                .Where(dockerfileInfo => dockerfileInfo.Os.Contains(AlpineOs));
-
-            if (!alpineDockerfiles.Any())
+            using (new AssertionScope())
             {
-                // The repo doesn't have any alpine dockerfiles
-                return;
-            }
-
-            // It's possible that we don't specify the alpine version if
-            // there's only a single alpine dockerfile in the repo.
-            // In this is the case, a null string for the version will be used
-            Version? latestAlpineVersion = alpineDockerfiles
-                .Select(GetAlpineVersion)
-                .Where(version => version != null)
-                .OrderByDescending(version => version)
-                .FirstOrDefault();
-
-            foreach (ManifestHelper.DockerfileInfo dockerfileInfo in alpineDockerfiles)
-            {
-                IEnumerable<string> alpineFloatingTags = dockerfileTags[dockerfileInfo]
-                    .Where(tag => IsTagOfFormat(
-                        tag,
-                        versionType,
-                        majorMinor: dockerfileInfo.MajorMinor,
-                        os: AlpineOs,
-                        architecture: checkArchitecture ? dockerfileInfo.Architecture : null));
-
-                if(!alpineFloatingTags.Any())
+                foreach ((DockerfileInfo dockerfileInfo, List<string> tags) in alpineDockerfileTags)
                 {
-                    dockerfileInfo.Os.Should().NotBeEquivalentTo(AlpineOs + latestAlpineVersion,
-                        $"{dockerfileInfo} does not have an alpine floating tag. " +
-                        "This dockerfile should have a floating tag because it uses the latest alpine version");
-                }
-                else
-                {
-                    alpineFloatingTags.Should().ContainSingle("expected exactly one alpine floating tag for " + dockerfileInfo);
-                    dockerfileInfo.Os.Should().BeEquivalentTo(AlpineOs + latestAlpineVersion, $"{dockerfileInfo} has an alpine floating tag." +
-                        "This dockerfile not have a floating tag because it doesn't use the latest alpine version");
+                    string alpineFloatingTagVersion = GetAlpineFloatingTagVersion(dockerfileInfo);
+                    Regex pattern = GetFloatingTagRegex(dockerfileInfo);
+                    if (dockerfileInfo.Os == alpineFloatingTagVersion)
+                    {
+                        tags.Should().ContainSingle(tag => pattern.IsMatch(tag),
+                            because: $"image {dockerfileInfo} should have an {OS.Alpine} floating tag");
+                    }
+                    else
+                    {
+                        tags.Should().NotContain(tag => pattern.IsMatch(tag),
+                            because: $"image {dockerfileInfo} should not have an {OS.Alpine} floating tag");
+                    }
                 }
             }
+
+            string GetAlpineFloatingTagVersion(DockerfileInfo info) =>
+                Config.GetVariableValue($"alpine|{info.MajorMinor}|floating-tag-version");
+
+            Regex GetFloatingTagRegex(DockerfileInfo info) =>
+                GetTagRegex(
+                    versionType,
+                    majorMinor: info.MajorMinor,
+                    os: OS.Alpine,
+                    architecture: checkArchitecture ? info.Architecture : null);
         }
 
         // - <Major.Minor.Patch>
@@ -214,9 +205,7 @@ namespace Microsoft.DotNet.Docker.Tests
         public void VersionTag_SameOsAndVersion(Repo repo, VersionType versionType)
         {
             // Group tags -> dockerfiles
-            // Skip .NET 6 dockerfiles because they include linux and windows OSes for the tags
-            Dictionary<string, List<ManifestHelper.DockerfileInfo>> tagsToDockerfiles = ManifestHelper.GetDockerfileTags(repo)
-                .Where(pair => !IsDotNet6(pair.Key))
+            Dictionary<string, List<DockerfileInfo>> tagsToDockerfiles = ManifestHelper.GetDockerfileTags(repo)
                 .SelectMany(pair => pair.Value
                     .Where(tag => IsTagOfFormat(
                         tag,
@@ -228,10 +217,10 @@ namespace Microsoft.DotNet.Docker.Tests
                 .GroupBy(pair => pair.tag, pair => pair.Key)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
-            foreach (KeyValuePair<string, List<ManifestHelper.DockerfileInfo>> tagToDockerfiles in tagsToDockerfiles)
+            foreach (KeyValuePair<string, List<DockerfileInfo>> tagToDockerfiles in tagsToDockerfiles)
             {
                 string tag = tagToDockerfiles.Key;
-                List<ManifestHelper.DockerfileInfo> dockerfiles = tagToDockerfiles.Value;
+                List<DockerfileInfo> dockerfiles = tagToDockerfiles.Value;
 
                 List<string> dockerfileVersions = dockerfiles
                     .Select(dockerfile => dockerfile.MajorMinor)
@@ -500,7 +489,7 @@ namespace Microsoft.DotNet.Docker.Tests
             VersionType? versionType = null,
             bool? checkOs = false,
             bool? checkArchitecture = false,
-            Func<ManifestHelper.DockerfileInfo, bool>? skipDockerfileOn = null)
+            Func<DockerfileInfo, bool>? skipDockerfileOn = null)
         {
             switch (testType)
             {
@@ -533,22 +522,19 @@ namespace Microsoft.DotNet.Docker.Tests
             }
         }
 
-        private static bool IsWindows(ManifestHelper.DockerfileInfo dockerfileInfo) =>
+        private static bool IsWindows(DockerfileInfo dockerfileInfo) =>
             dockerfileInfo.Os.Contains("windowsservercore") || dockerfileInfo.Os.Contains("nanoserver");
 
         // Certain versions of appliance repos use a new tag schema.
         // This new schema excludes the OS from all tags.
         // The aspire-dashboard repo uses this schema for all versions.
         // The monitor and monitor-base repos use this schema for versions 9 and above.
-        private static bool IsApplianceVersionUsingOldSchema(ManifestHelper.DockerfileInfo dockerfileInfo) =>
+        private static bool IsApplianceVersionUsingOldSchema(DockerfileInfo dockerfileInfo) =>
             dockerfileInfo.Repo.Contains("monitor") && GetVersion(dockerfileInfo.MajorMinor).Major <= 8;
 
         // <cref="IsApplianceVersionUsingOldSchema"/>
-        private static bool IsApplianceVersionUsingNewSchema(ManifestHelper.DockerfileInfo dockerfileInfo) =>
+        private static bool IsApplianceVersionUsingNewSchema(DockerfileInfo dockerfileInfo) =>
             !IsApplianceVersionUsingOldSchema(dockerfileInfo);
-
-        private static bool IsDotNet6(ManifestHelper.DockerfileInfo dockerfileInfo) =>
-            dockerfileInfo.MajorMinor.StartsWith("6");
 
         private static bool IsExpectedMajorMinorVersion(Repo repo, string version)
         {
@@ -594,6 +580,12 @@ namespace Microsoft.DotNet.Docker.Tests
             string? os = null,
             string? architecture = null)
         {
+            Regex pattern = GetTagRegex(versionType, majorMinor, os, architecture);
+            return pattern.IsMatch(tag);
+        }
+
+        private static Regex GetTagRegex(VersionType versionType, string? majorMinor, string? os, string? architecture)
+        {
             string tagRegex = versionType switch
             {
                 VersionType.Major =>
@@ -607,18 +599,14 @@ namespace Microsoft.DotNet.Docker.Tests
                 _ => throw new ArgumentException("Invalid version type", nameof(versionType)),
             };
 
-            string patternRegex = $"^{tagRegex}" + (os != null ? $"-{os}" : string.Empty) + (architecture != null ? $"-{architecture}" : string.Empty) + "$";
-            return Regex.IsMatch(tag, patternRegex);
+            return new Regex($"^{tagRegex}" + (os != null ? $"-{os}" : string.Empty) + (architecture != null ? $"-{architecture}" : string.Empty) + "$");
         }
 
-        private static Version? GetAlpineVersion(ManifestHelper.DockerfileInfo dockerfileInfo)
+        private static Version GetAlpineVersion(DockerfileInfo dockerfileInfo)
         {
-            string? parsedOs = dockerfileInfo.Os.Replace(AlpineOs, string.Empty);
-            if (string.IsNullOrEmpty(parsedOs))
-            {
-                // No version specified
-                return null;
-            }
+            string parsedOs = dockerfileInfo.Os.Replace(OS.Alpine, string.Empty);
+            parsedOs.Should().NotBeNullOrWhiteSpace(
+                because: $"{dockerfileInfo} should have a specific Alpine version for osVersion");
             return GetVersion(parsedOs);
         }
 
